@@ -1,0 +1,148 @@
+---
+title: "recombinations_in_DO_Striatum"
+author: "Hao He"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+  toc: true
+vignette: >
+  %\VignetteIndexEntry{recombinations_in_DO_Striatum}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+  
+```{r knitr-opts, include=FALSE}
+knitr::opts_chunk$set(comment = "#",collapse = TRUE)
+```
+
+```{r load_packages, include=FALSE}
+library(reticulate)
+library(abind)
+library(qtl2)
+library(ggplot2)
+library(DOQTL)
+library(gridExtra)
+library(VennDiagram)
+library(foreach)
+library(doParallel)
+library(parallel)
+```
+
+# Load DO_Striatum data (gbrs.reconstructed.genotypes)
+```{r load DO_Striatum data (gbrs.reconstructed.genotypes), message=FALSE, eval=FALSE}
+#chr
+chr.names <- c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","X","MT")
+# using .genotypes.npz file to count the number of recombination events
+sample.name <- list.files(path = "/projects/heh/HH/GBRS_array/data/DO_Striatum/results/bowtie-1.1.2_gbrs-0.1.6_R84-REL1505/")
+#parallel
+cl <- makeCluster(100)
+registerDoParallel(cl)
+recomb.GBRS.genotypes.list = foreach(i=1:length(sample.name), .packages=c('qtl2','reticulate','abind')) %dopar% {
+  np <- reticulate::import("numpy")
+  npz <- np$load(paste0("/projects/heh/HH/GBRS_array/data/DO_Striatum/results/bowtie-1.1.2_gbrs-0.1.6_R84-REL1505/", sample.name[i], "/gbrs.reconstructed.genotypes.npz"))
+  mx.state <- list()
+  for(chr in chr.names){
+    mx.state[[chr]] = as.numeric(as.factor(npz$f[[chr]]))
+  }
+  # Get the locations where the genotypes change.
+  prox = lapply(mx.state, diff)
+  prox = lapply(prox, "!=", 0)
+  prox = lapply(prox, which)
+  tot_rec <- sum(unlist(lapply(prox, length)))
+  names(tot_rec) <- sample.name[i]
+  tot_rec
+}
+recomb.GBRS.genotypes <- data.frame(Sample = names(unlist(recomb.GBRS.genotypes.list)), recomb = unlist(recomb.GBRS.genotypes.list))
+#save results
+save(recomb.GBRS.genotypes, file = "./output/DO_Striatum/recomb.GBRS.genotypes.RData")
+```
+
+# Load recombination results on recomb.GBRS.genotypes of DO_Striatum
+```{r Load recombination results on recomb.GBRS.genotypes of DO_Striatum, message=FALSE, eval=TRUE, fig.height=10, fig.width=10}
+load("./output/DO_Striatum/recomb.GBRS.genotypes.RData")
+#sample sheet
+sample_sheet <- read.table("/projects/heh/HH/GBRS_array/data/DO_Striatum/sample_sheet.tsv", header = TRUE)
+#merge with sample sheet
+recomb.GBRS.genotypes.plot <- merge(recomb.GBRS.genotypes, sample_sheet, by = "Sample", all.x = TRUE)
+recomb.GBRS.genotypes.plot$Gen <- as.factor(recomb.GBRS.genotypes.plot$Gen)
+#boxplot
+p <-ggplot(recomb.GBRS.genotypes.plot, aes(x = Gen, y = recomb)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(position = position_jitter(0.25), aes(colour = Gen)) +
+  theme(legend.position="none") +
+  geom_smooth(method = "lm", se=FALSE, color="black", aes(group=1), linetype="dotted") +
+  labs(x = "DO Outbreeding Generations (DO_Striatum)") +
+  labs(y = "Number of Recombinations") +
+  ggtitle("Recombinations using gbrs.reconstructed.genotypes") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_x_discrete(limits=c("21","22","23"))
+print(p)
+```
+
+# Load DO_Striatum data gbrs.interpolated.genoprobs to get 3D genoprobs array
+```{r load DO_Striatum data (gbrs.interpolated.genoprobs), message=FALSE, eval=FALSE}
+# chr
+chr.names <- c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","X")
+# sample
+sample.name <- list.files(path = "/projects/heh/HH/GBRS_array/data/DO_Striatum/results/bowtie-1.1.2_gbrs-0.1.6_R84-REL1505/")
+#3d array genoprobs
+geno.probs.striatum <- list()
+for (chr in chr.names){
+  print(chr)
+  for(i in sample.name){
+    np <- reticulate::import("numpy")
+    npz <- np$load(paste0("/projects/heh/HH/GBRS_array/data/DO_Striatum/results/bowtie-1.1.2_gbrs-0.1.6_R84-REL1505/", i, "/gbrs.interpolated.genoprobs.npz"))
+    geno.probs.striatum[[chr]][[i]] <- npz$f[[chr]]
+  }
+  geno.probs.striatum[[chr]] <- abind(geno.probs.striatum[[chr]], along=3 )
+  geno.probs.striatum[[chr]] <- aperm(geno.probs.striatum[[chr]], perm = c(3,1,2))
+}
+names(geno.probs.striatum) <- chr.names
+attr(geno.probs.striatum, "crosstype") <- "do"
+# Save geno.probs.striatum to a file
+saveRDS(geno.probs.striatum, file = "./output/DO_Striatum/geno.probs.striatum.rds")
+```
+
+# Load 3D genoprobs array (geno.probs.striatum) from DO_Striatum data to calculate recombination
+```{r load DO_Striatum data (3D genoprobs array, geno.probs.liver), message=FALSE, eval=FALSE}
+#load geno.probs.liver
+geno.probs.striatum <- readRDS("./output/DO_Striatum/geno.probs.striatum.rds")
+#use 100 cores
+cl <- makeCluster(100)
+registerDoParallel(cl)
+getDoParWorkers()
+# using 3d array genotype probs to calculate the number of recombination events by qtl2 package
+#For each individual at each position, find the genotype with the maximum marginal probability.
+g <- maxmarg(geno.probs.striatum,cores = 100)
+#count_xo: Count numbers of crossovers in qtl2
+n_xo <- count_xo(g)
+tot_n_xo <- apply(n_xo,1,sum)
+#make results as a dataframe
+recomb.GBRS.genoprobs <- data.frame(Sample = dimnames(geno.probs.striatum$`1`)[[1]],
+                                    recomb = tot_n_xo)
+stopCluster(cl)
+#save recomb.GBRS.genoprobs
+save(recomb.GBRS.genoprobs, file = "./output/DO_Striatum/recomb.GBRS.genoprobs.RData")
+```
+
+# Load recombination results on recomb.GBRS.genoprobs of DO_Striatum
+```{r Load recombination results on recomb.GBRS.genoprobs of DO_Striatum, message=FALSE, eval=TRUE, fig.height=10, fig.width=10}
+load("./output/DO_Striatum/recomb.GBRS.genoprobs.RData")
+#sample sheet
+sample_sheet <- read.table("/projects/heh/HH/GBRS_array/data/DO_Striatum/sample_sheet.tsv", header = TRUE)
+#merge with sample sheet
+recomb.GBRS.genoprobs.plot <- merge(recomb.GBRS.genoprobs, sample_sheet, by = "Sample", all.x = TRUE)
+recomb.GBRS.genoprobs.plot$Gen <- as.factor(recomb.GBRS.genoprobs.plot$Gen)
+#boxplot
+p <-ggplot(recomb.GBRS.genoprobs.plot, aes(x = Gen, y = recomb)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(position = position_jitter(0.25), aes(colour = Gen)) +
+  theme(legend.position="none") +
+  geom_smooth(method = "lm", se=FALSE, color="black", aes(group=1), linetype="dotted") +
+  labs(x = "DO Outbreeding Generations (DO_Striatum)") +
+  labs(y = "Number of Recombinations") +
+  ggtitle("Recombinations using gbrs.interpolated.genoprobs") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_x_discrete(limits=c("21","22","23"))
+print(p)
+```

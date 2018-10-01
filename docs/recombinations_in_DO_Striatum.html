@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Hao He" />
+
+<meta name="date" content="2018-10-01" />
+
+<title>recombinations_in_DO_Striatum</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Workflowr_GBRS_array</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/xhyuo/Workflowr_GBRS_array">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">recombinations_in_DO_Striatum</h1>
+<h4 class="author"><em>Hao He</em></h4>
+<h4 class="date"><em>2018-10-01</em></h4>
+
+</div>
+
+
+<p><strong>Last updated:</strong> 2018-10-01</p>
+<strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
+<ul>
+<li>
+<p><details> <summary> <strong style="color:red;">✖</strong> <strong>R Markdown file:</strong> uncommitted changes </summary> The R Markdown is untracked by Git. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+</details>
+</li>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Environment:</strong> empty </summary></p>
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</details>
+</li>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Seed:</strong> <code>set.seed(20181001)</code> </summary></p>
+<p>The command <code>set.seed(20181001)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</details>
+</li>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Session information:</strong> recorded </summary></p>
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</details>
+</li>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> 3c65a4d </summary></p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+<pre><code>
+Ignored files:
+    Ignored:    .Rproj.user/
+
+Untracked files:
+    Untracked:  analysis/recombinations_in_DO_Liver.Rmd
+    Untracked:  analysis/recombinations_in_DO_Striatum.Rmd
+    Untracked:  docs/figure/
+    Untracked:  output/DO_Liver/
+    Untracked:  output/DO_Striatum/
+
+Unstaged changes:
+    Modified:   analysis/_site.yml
+    Modified:   analysis/index.Rmd
+
+</code></pre>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes. </details>
+</li>
+</ul>
+<hr />
+<div id="load-do_striatum-data-gbrs.reconstructed.genotypes" class="section level1">
+<h1>Load DO_Striatum data (gbrs.reconstructed.genotypes)</h1>
+<pre class="r"><code>#chr
+chr.names &lt;- c(&quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;,&quot;5&quot;,&quot;6&quot;,&quot;7&quot;,&quot;8&quot;,&quot;9&quot;,&quot;10&quot;,&quot;11&quot;,&quot;12&quot;,&quot;13&quot;,&quot;14&quot;,&quot;15&quot;,&quot;16&quot;,&quot;17&quot;,&quot;18&quot;,&quot;19&quot;,&quot;X&quot;,&quot;MT&quot;)
+# using .genotypes.npz file to count the number of recombination events
+sample.name &lt;- list.files(path = &quot;/projects/heh/HH/GBRS_array/data/DO_Striatum/results/bowtie-1.1.2_gbrs-0.1.6_R84-REL1505/&quot;)
+#parallel
+cl &lt;- makeCluster(100)
+registerDoParallel(cl)
+recomb.GBRS.genotypes.list = foreach(i=1:length(sample.name), .packages=c(&#39;qtl2&#39;,&#39;reticulate&#39;,&#39;abind&#39;)) %dopar% {
+  np &lt;- reticulate::import(&quot;numpy&quot;)
+  npz &lt;- np$load(paste0(&quot;/projects/heh/HH/GBRS_array/data/DO_Striatum/results/bowtie-1.1.2_gbrs-0.1.6_R84-REL1505/&quot;, sample.name[i], &quot;/gbrs.reconstructed.genotypes.npz&quot;))
+  mx.state &lt;- list()
+  for(chr in chr.names){
+    mx.state[[chr]] = as.numeric(as.factor(npz$f[[chr]]))
+  }
+  # Get the locations where the genotypes change.
+  prox = lapply(mx.state, diff)
+  prox = lapply(prox, &quot;!=&quot;, 0)
+  prox = lapply(prox, which)
+  tot_rec &lt;- sum(unlist(lapply(prox, length)))
+  names(tot_rec) &lt;- sample.name[i]
+  tot_rec
+}
+recomb.GBRS.genotypes &lt;- data.frame(Sample = names(unlist(recomb.GBRS.genotypes.list)), recomb = unlist(recomb.GBRS.genotypes.list))
+#save results
+save(recomb.GBRS.genotypes, file = &quot;./output/DO_Striatum/recomb.GBRS.genotypes.RData&quot;)</code></pre>
+</div>
+<div id="load-recombination-results-on-recomb.gbrs.genotypes-of-do_striatum" class="section level1">
+<h1>Load recombination results on recomb.GBRS.genotypes of DO_Striatum</h1>
+<pre class="r"><code>load(&quot;./output/DO_Striatum/recomb.GBRS.genotypes.RData&quot;)
+#sample sheet
+sample_sheet &lt;- read.table(&quot;/projects/heh/HH/GBRS_array/data/DO_Striatum/sample_sheet.tsv&quot;, header = TRUE)
+#merge with sample sheet
+recomb.GBRS.genotypes.plot &lt;- merge(recomb.GBRS.genotypes, sample_sheet, by = &quot;Sample&quot;, all.x = TRUE)
+recomb.GBRS.genotypes.plot$Gen &lt;- as.factor(recomb.GBRS.genotypes.plot$Gen)
+#boxplot
+p &lt;-ggplot(recomb.GBRS.genotypes.plot, aes(x = Gen, y = recomb)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(position = position_jitter(0.25), aes(colour = Gen)) +
+  theme(legend.position=&quot;none&quot;) +
+  geom_smooth(method = &quot;lm&quot;, se=FALSE, color=&quot;black&quot;, aes(group=1), linetype=&quot;dotted&quot;) +
+  labs(x = &quot;DO Outbreeding Generations (DO_Striatum)&quot;) +
+  labs(y = &quot;Number of Recombinations&quot;) +
+  ggtitle(&quot;Recombinations using gbrs.reconstructed.genotypes&quot;) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_x_discrete(limits=c(&quot;21&quot;,&quot;22&quot;,&quot;23&quot;))
+print(p)</code></pre>
+<p><img src="figure/recombinations_in_DO_Striatum.Rmd/Load%20recombination%20results%20on%20recomb.GBRS.genotypes%20of%20DO_Striatum-1.png" width="960" style="display: block; margin: auto;" /></p>
+</div>
+<div id="load-do_striatum-data-gbrs.interpolated.genoprobs-to-get-3d-genoprobs-array" class="section level1">
+<h1>Load DO_Striatum data gbrs.interpolated.genoprobs to get 3D genoprobs array</h1>
+<pre class="r"><code># chr
+chr.names &lt;- c(&quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;,&quot;5&quot;,&quot;6&quot;,&quot;7&quot;,&quot;8&quot;,&quot;9&quot;,&quot;10&quot;,&quot;11&quot;,&quot;12&quot;,&quot;13&quot;,&quot;14&quot;,&quot;15&quot;,&quot;16&quot;,&quot;17&quot;,&quot;18&quot;,&quot;19&quot;,&quot;X&quot;)
+# sample
+sample.name &lt;- list.files(path = &quot;/projects/heh/HH/GBRS_array/data/DO_Striatum/results/bowtie-1.1.2_gbrs-0.1.6_R84-REL1505/&quot;)
+#3d array genoprobs
+geno.probs.striatum &lt;- list()
+for (chr in chr.names){
+  print(chr)
+  for(i in sample.name){
+    np &lt;- reticulate::import(&quot;numpy&quot;)
+    npz &lt;- np$load(paste0(&quot;/projects/heh/HH/GBRS_array/data/DO_Striatum/results/bowtie-1.1.2_gbrs-0.1.6_R84-REL1505/&quot;, i, &quot;/gbrs.interpolated.genoprobs.npz&quot;))
+    geno.probs.striatum[[chr]][[i]] &lt;- npz$f[[chr]]
+  }
+  geno.probs.striatum[[chr]] &lt;- abind(geno.probs.striatum[[chr]], along=3 )
+  geno.probs.striatum[[chr]] &lt;- aperm(geno.probs.striatum[[chr]], perm = c(3,1,2))
+}
+names(geno.probs.striatum) &lt;- chr.names
+attr(geno.probs.striatum, &quot;crosstype&quot;) &lt;- &quot;do&quot;
+# Save geno.probs.striatum to a file
+saveRDS(geno.probs.striatum, file = &quot;./output/DO_Striatum/geno.probs.striatum.rds&quot;)</code></pre>
+</div>
+<div id="load-3d-genoprobs-array-geno.probs.striatum-from-do_striatum-data-to-calculate-recombination" class="section level1">
+<h1>Load 3D genoprobs array (geno.probs.striatum) from DO_Striatum data to calculate recombination</h1>
+<pre class="r"><code>#load geno.probs.liver
+geno.probs.striatum &lt;- readRDS(&quot;./output/DO_Striatum/geno.probs.striatum.rds&quot;)
+#use 100 cores
+cl &lt;- makeCluster(100)
+registerDoParallel(cl)
+getDoParWorkers()
+# using 3d array genotype probs to calculate the number of recombination events by qtl2 package
+#For each individual at each position, find the genotype with the maximum marginal probability.
+g &lt;- maxmarg(geno.probs.striatum,cores = 100)
+#count_xo: Count numbers of crossovers in qtl2
+n_xo &lt;- count_xo(g)
+tot_n_xo &lt;- apply(n_xo,1,sum)
+#make results as a dataframe
+recomb.GBRS.genoprobs &lt;- data.frame(Sample = dimnames(geno.probs.striatum$`1`)[[1]],
+                                    recomb = tot_n_xo)
+stopCluster(cl)
+#save recomb.GBRS.genoprobs
+save(recomb.GBRS.genoprobs, file = &quot;./output/DO_Striatum/recomb.GBRS.genoprobs.RData&quot;)</code></pre>
+</div>
+<div id="load-recombination-results-on-recomb.gbrs.genoprobs-of-do_striatum" class="section level1">
+<h1>Load recombination results on recomb.GBRS.genoprobs of DO_Striatum</h1>
+<pre class="r"><code>load(&quot;./output/DO_Striatum/recomb.GBRS.genoprobs.RData&quot;)
+#sample sheet
+sample_sheet &lt;- read.table(&quot;/projects/heh/HH/GBRS_array/data/DO_Striatum/sample_sheet.tsv&quot;, header = TRUE)
+#merge with sample sheet
+recomb.GBRS.genoprobs.plot &lt;- merge(recomb.GBRS.genoprobs, sample_sheet, by = &quot;Sample&quot;, all.x = TRUE)
+recomb.GBRS.genoprobs.plot$Gen &lt;- as.factor(recomb.GBRS.genoprobs.plot$Gen)
+#boxplot
+p &lt;-ggplot(recomb.GBRS.genoprobs.plot, aes(x = Gen, y = recomb)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(position = position_jitter(0.25), aes(colour = Gen)) +
+  theme(legend.position=&quot;none&quot;) +
+  geom_smooth(method = &quot;lm&quot;, se=FALSE, color=&quot;black&quot;, aes(group=1), linetype=&quot;dotted&quot;) +
+  labs(x = &quot;DO Outbreeding Generations (DO_Striatum)&quot;) +
+  labs(y = &quot;Number of Recombinations&quot;) +
+  ggtitle(&quot;Recombinations using gbrs.interpolated.genoprobs&quot;) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_x_discrete(limits=c(&quot;21&quot;,&quot;22&quot;,&quot;23&quot;))
+print(p)</code></pre>
+<p><img src="figure/recombinations_in_DO_Striatum.Rmd/Load%20recombination%20results%20on%20recomb.GBRS.genoprobs%20of%20DO_Striatum-1.png" width="960" style="display: block; margin: auto;" /></p>
+<div id="session-information" class="section level2">
+<h2>Session information</h2>
+<pre class="r"><code>sessionInfo()
+# R version 3.3.2 (2016-10-31)
+# Platform: x86_64-pc-linux-gnu (64-bit)
+# Running under: CentOS release 6.7 (Final)
+# 
+# locale:
+#  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+#  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+#  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+#  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+#  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+# [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+# 
+# attached base packages:
+#  [1] grid      stats4    parallel  stats     graphics  grDevices utils    
+#  [8] datasets  methods   base     
+# 
+# other attached packages:
+#  [1] doParallel_1.0.10                  iterators_1.0.8                   
+#  [3] foreach_1.4.3                      VennDiagram_1.6.17                
+#  [5] futile.logger_1.4.3                gridExtra_2.2.1                   
+#  [7] DOQTL_1.10.0                       VariantAnnotation_1.20.2          
+#  [9] Rsamtools_1.26.2                   SummarizedExperiment_1.4.0        
+# [11] Biobase_2.34.0                     BSgenome.Mmusculus.UCSC.mm10_1.4.0
+# [13] BSgenome_1.42.0                    rtracklayer_1.34.2                
+# [15] Biostrings_2.42.1                  XVector_0.14.1                    
+# [17] GenomicRanges_1.26.4               GenomeInfoDb_1.10.3               
+# [19] IRanges_2.8.2                      S4Vectors_0.12.2                  
+# [21] BiocGenerics_0.20.0                ggplot2_2.2.1                     
+# [23] qtl2plot_0.5-14                    qtl2scan_0.5-22                   
+# [25] qtl2geno_0.5-32                    qtl2_0.5-7                        
+# [27] abind_1.4-5                        reticulate_1.10                   
+# 
+# loaded via a namespace (and not attached):
+#  [1] bitops_1.0-6             bit64_0.9-7             
+#  [3] rprojroot_1.3-2          prabclus_2.2-6          
+#  [5] regress_1.3-15           tools_3.3.2             
+#  [7] backports_1.0.5          DBI_1.0.0               
+#  [9] lazyeval_0.2.0           colorspace_1.3-2        
+# [11] annotationTools_1.48.0   trimcluster_0.1-2       
+# [13] nnet_7.3-12              bit_1.1-12              
+# [15] git2r_0.21.0             formatR_1.5             
+# [17] labeling_0.3             diptest_0.75-7          
+# [19] scales_0.4.1             QTLRel_1.0              
+# [21] DEoptimR_1.0-8           mvtnorm_1.0-5           
+# [23] robustbase_0.92-7        stringr_1.2.0           
+# [25] digest_0.6.13            rmarkdown_1.9           
+# [27] R.utils_2.5.0            htmltools_0.3.5         
+# [29] rlang_0.2.2              RSQLite_2.1.1           
+# [31] hwriter_1.3.2            jsonlite_1.5            
+# [33] gtools_3.5.0             mclust_5.2.1            
+# [35] BiocParallel_1.8.2       R.oo_1.21.0             
+# [37] RCurl_1.95-4.10          magrittr_1.5            
+# [39] modeltools_0.2-21        qtl_1.41-6              
+# [41] Matrix_1.2-14            Rcpp_0.12.18            
+# [43] munsell_0.4.3            R.methodsS3_1.7.1       
+# [45] stringi_1.1.2            whisker_0.3-2           
+# [47] yaml_2.1.14              MASS_7.3-50             
+# [49] zlibbioc_1.20.0          rhdf5_2.18.0            
+# [51] flexmix_2.3-13           plyr_1.8.4              
+# [53] blob_1.1.1               gdata_2.18.0            
+# [55] lattice_0.20-35          GenomicFeatures_1.26.2  
+# [57] annotate_1.52.1          knitr_1.20              
+# [59] pillar_1.0.1             RUnit_0.4.31            
+# [61] fpc_2.1-10               corpcor_1.6.9           
+# [63] codetools_0.2-15         biomaRt_2.30.0          
+# [65] futile.options_1.0.1     XML_3.98-1.7            
+# [67] qtl2convert_0.5-8        evaluate_0.10           
+# [69] lambda.r_1.2.2           data.table_1.11.4       
+# [71] gtable_0.2.0             kernlab_0.9-25          
+# [73] xtable_1.8-2             qtl2db_0.5-5            
+# [75] class_7.3-14             tibble_1.4.1            
+# [77] GenomicAlignments_1.10.1 AnnotationDbi_1.36.2    
+# [79] memoise_1.1.0            workflowr_1.1.1         
+# [81] cluster_2.0.7-1</code></pre>
+</div>
+</div>
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+<hr>
+<p>
+  This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a>
+  analysis was created with
+  <a href="https://github.com/jdblischak/workflowr">workflowr</a> 1.1.1
+</p>
+<hr>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
