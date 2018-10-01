@@ -26,6 +26,8 @@ library(VennDiagram)
 library(foreach)
 library(doParallel)
 library(parallel)
+library(plyr)
+library(DT)
 ```
 
 # Load DO_liver data (gbrs.reconstructed.genotypes)
@@ -65,11 +67,18 @@ load("./output/DO_Liver/recomb.GBRS.genotypes.RData")
 #sample sheet
 sample_sheet <- read.table("/projects/heh/HH/GBRS_array/data/DO_Liver/sample_sheet.tsv", header = TRUE)
 sigma = c("0.110", "0.115", "0.120", "0.125", "0.130")
+#get summary table for each generation per sigma value
+summary.tab <- list()
 for (sg in sigma){
   print(sg)
   #merge with sample sheet
   recomb.GBRS.genotypes.plot <- merge(recomb.GBRS.genotypes[[sg]], sample_sheet, by = "Sample", all.x = TRUE)
   recomb.GBRS.genotypes.plot$Gen <- as.factor(recomb.GBRS.genotypes.plot$Gen)
+  #get summary table for each generation per sigma value
+  summary.tab[[sg]] <- ddply(recomb.GBRS.genotypes.plot,.(Gen),
+                summarise,mean = mean(recomb),var = var(recomb), n= length(recomb))
+  summary.tab[[sg]]$sigma <- sg
+  
   #boxplot
   p <-ggplot(recomb.GBRS.genotypes.plot, aes(x = Gen, y = recomb)) +
     geom_boxplot(outlier.shape = NA) +
@@ -84,6 +93,10 @@ for (sg in sigma){
     ylim(150, 550)
   print(p)
 }
+summary.tab.genotype <- do.call(rbind.data.frame,summary.tab)
+rownames(summary.tab.genotype) <- NULL
+#display summary table
+DT::datatable(summary.tab.genotype,options = list(pageLength = 100, scrollY = "800px", scrollX = "20px"))
 ```
 
 # Load DO_liver data gbrs.interpolated.genoprobs to get 3D genoprobs array
@@ -113,7 +126,7 @@ for (sg in sigma){
 }
 
 # Save geno.probs.liver to a file
-saveRDS(geno.probs.liver, file = "./output/DO_Liver/geno.probs.liver.rds")
+saveRDS(geno.probs.liver, file = "/projects/heh/HH/GBRS_array/data/DO_Liver./output/DO_Liver/geno.probs.liver.rds")
 ```
 
 # Load 3D genoprobs array (geno.probs.liver) from DO_liver data to calculate recombination
@@ -149,11 +162,18 @@ load("./output/DO_Liver/recomb.GBRS.genoprobs.RData")
 #sample sheet
 sample_sheet <- read.table("/projects/heh/HH/GBRS_array/data/DO_Liver/sample_sheet.tsv", header = TRUE)
 sigma = c("0.110", "0.115", "0.120", "0.125", "0.130")
+#get summary table for each generation per sigma value
+summary.tab <- list()
 for (sg in sigma){
   print(sg)
   #merge with sample sheet
   recomb.GBRS.genoprobs.plot <- merge(recomb.GBRS.genoprobs[[sg]], sample_sheet, by = "Sample", all.x = TRUE)
   recomb.GBRS.genoprobs.plot$Gen <- as.factor(recomb.GBRS.genoprobs.plot$Gen)
+  #get summary table for each generation per sigma value
+  summary.tab[[sg]] <- ddply(recomb.GBRS.genoprobs.plot,.(Gen),
+                summarise,mean = mean(recomb),var = var(recomb), n= length(recomb))
+  summary.tab[[sg]]$sigma <- sg
+  
   #boxplot
   p <-ggplot(recomb.GBRS.genoprobs.plot, aes(x = Gen, y = recomb)) +
     geom_boxplot(outlier.shape = NA) +
@@ -168,6 +188,10 @@ for (sg in sigma){
     ylim(200, 600)
   print(p)
 }
+summary.tab.genoprobs <- do.call(rbind.data.frame,summary.tab)
+rownames(summary.tab.genoprobs) <- NULL
+#display summary table
+DT::datatable(summary.tab.genoprobs,options = list(pageLength = 100, scrollY = "800px", scrollX = "20px"))
 ```
 
 # Load muga data
@@ -177,7 +201,7 @@ muga <- list()
 x0 <- list()
 y0 <- list()
 for(i in 1:7){
-  muga[[i]] <- read.table(paste0("./data/muga",i,".txt"), header = TRUE, sep = " ")
+  muga[[i]] <- read.table(paste0("/projects/heh/HH/GBRS_array/data/DO_Liver/array_data/muga",i,".txt"), header = TRUE, sep = " ")
   rownames(muga[[i]]) <- muga[[i]]$marker
   #x
   x_col <- grepl("_X",colnames(muga[[i]]))
@@ -206,6 +230,8 @@ remove = which(rowMeans(x, na.rm = T) + rowMeans(y, na.rm = T) > 2)
 x = x[-remove,]
 y = y[-remove,]
 sex.p = sex.predict(x = x, y = y, snps = muga_snps, plot = T)
+#sample sheet
+sample_sheet <- read.table("/projects/heh/HH/GBRS_array/data/DO_Liver/sample_sheet.tsv", header = TRUE)
 #get match samples
 match_sample_sheet <- sample_sheet[sample_sheet$Sample %in% rownames(x),]
 match_sample_sheet <- match_sample_sheet[match(rownames(x),match_sample_sheet$Sample),]
@@ -222,8 +248,8 @@ gen = gen[match(names(sex), names(gen))]
 stopifnot(all(rownames(x) == names(sex)))
 stopifnot(all(rownames(x) == names(gen)))
 data = list(x = x, y = y, sex = sex, gen = gen)
-save(data, file = "./data/MUGA/MUGA.data.RData")
-calc.genoprob(data = data, chr = "all", output.dir = "./data/MUGA", array = "muga")
+save(data, file = "/projects/heh/HH/GBRS_array/data/DO_Liver/array_data/MUGA/MUGA.data.RData")
+calc.genoprob(data = data, chr = "all", output.dir = "/projects/heh/HH/GBRS_array/data/DO_Liver/array_data/MUGA", array = "muga")
 ```
 
 # Load megamuga data
@@ -233,7 +259,7 @@ megamuga <- list()
 x0 <- list()
 y0 <- list()
 for(i in 1:3){
-  megamuga[[i]] <- read.table(paste0("./data/megamuga",i,".txt"), header = TRUE, sep = " ")
+  megamuga[[i]] <- read.table(paste0("/projects/heh/HH/GBRS_array/data/DO_Liver/array_data/megamuga",i,".txt"), header = TRUE, sep = " ")
   rownames(megamuga[[i]]) <- megamuga[[i]]$marker
   #x
   x_col <- grepl("_X",colnames(megamuga[[i]]))
@@ -252,6 +278,8 @@ y <- as.matrix(t(do.call(cbind.data.frame,y0)))
 #megamuga
 load(url("ftp://ftp.jax.org/MUGA/MM_snps.Rdata"))
 sex = sex.predict(x = x, y = y, snps = MM_snps, plot = T)
+#sample sheet
+sample_sheet <- read.table("/projects/heh/HH/GBRS_array/data/DO_Liver/sample_sheet.tsv", header = TRUE)
 #get match samples
 match_sample_sheet <- sample_sheet[sample_sheet$Sample %in% rownames(x),]
 match_sample_sheet <- match_sample_sheet[match(rownames(x),match_sample_sheet$Sample),]
@@ -268,9 +296,9 @@ gen = gen[match(names(sex), names(gen))]
 stopifnot(all(rownames(x) == names(sex)))
 stopifnot(all(rownames(x) == names(gen)))
 data = list(x = x, y = y, sex = sex, gen = gen)
-save(data, file = "./data/MEGAMUGA/MEGAMUGA.data.RData")
+save(data, file = "/projects/heh/HH/GBRS_array/data/DO_Liver/array_data/MEGAMUGA/MEGAMUGA.data.RData")
 #genotype probs
-calc.genoprob(data = data, chr = "all", output.dir = "./data/MEGAMUGA", array = "megamuga")
+calc.genoprob(data = data, chr = "all", output.dir = "/projects/heh/HH/GBRS_array/data/DO_Liver/array_data/MEGAMUGA/", array = "megamuga")
 ```
 
 # Summarize the recombinations in muga genotype probs results

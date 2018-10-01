@@ -26,6 +26,8 @@ library(VennDiagram)
 library(foreach)
 library(doParallel)
 library(parallel)
+library(plyr)
+library(DT)
 ```
 
 # Load DO_Striatum data (gbrs.reconstructed.genotypes)
@@ -77,6 +79,12 @@ p <-ggplot(recomb.GBRS.genotypes.plot, aes(x = Gen, y = recomb)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_x_discrete(limits=c("21","22","23"))
 print(p)
+
+#get summary table for each generation per sigma value
+summary.tab.genotype <- ddply(recomb.GBRS.genotypes.plot,.(Gen),
+                summarise,mean = mean(recomb),var = var(recomb), n= length(recomb))
+#display summary table
+DT::datatable(summary.tab.genotype,options = list(pageLength = 100, scrollY = "800px", scrollX = "20px"))
 ```
 
 # Load DO_Striatum data gbrs.interpolated.genoprobs to get 3D genoprobs array
@@ -145,4 +153,9 @@ p <-ggplot(recomb.GBRS.genoprobs.plot, aes(x = Gen, y = recomb)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_x_discrete(limits=c("21","22","23"))
 print(p)
+#get summary table for each generation per sigma value
+summary.tab.genoprobs <- ddply(recomb.GBRS.genoprobs.plot,.(Gen),
+                summarise,mean = mean(recomb),var = var(recomb), n= length(recomb))
+#display summary table
+DT::datatable(summary.tab.genoprobs,options = list(pageLength = 100, scrollY = "800px", scrollX = "20px"))
 ```
