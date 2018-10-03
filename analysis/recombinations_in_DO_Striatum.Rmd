@@ -80,11 +80,11 @@ p <-ggplot(recomb.GBRS.genotypes.plot, aes(x = Gen, y = recomb)) +
   scale_x_discrete(limits=c("21","22","23"))
 print(p)
 
-#get summary table for each generation per sigma value
-summary.tab.genotype <- ddply(recomb.GBRS.genotypes.plot,.(Gen),
+#get summary table for each generation
+summary.GBRS.genotype <- ddply(recomb.GBRS.genotypes.plot,.(Gen),
                 summarise,mean = mean(recomb),var = var(recomb), n= length(recomb))
 #display summary table
-DT::datatable(summary.tab.genotype,options = list(pageLength = 100, scrollY = "800px", scrollX = "20px"))
+DT::datatable(summary.GBRS.genotype,options = list(pageLength = 100, scrollY = "800px", scrollX = "20px"))
 ```
 
 # Load DO_Striatum data gbrs.interpolated.genoprobs to get 3D genoprobs array
@@ -111,7 +111,7 @@ attr(geno.probs.striatum, "crosstype") <- "do"
 saveRDS(geno.probs.striatum, file = "./output/DO_Striatum/geno.probs.striatum.rds")
 ```
 
-# Load 3D genoprobs array (geno.probs.striatum) from DO_Striatum data to calculate recombination
+# Load 3D genoprobs array (36 genotypes) (geno.probs.striatum) from DO_Striatum data to calculate recombination
 ```{r load DO_Striatum data (3D genoprobs array, geno.probs.liver), message=FALSE, eval=FALSE}
 #load geno.probs.liver
 geno.probs.striatum <- readRDS("./output/DO_Striatum/geno.probs.striatum.rds")
@@ -153,9 +153,39 @@ p <-ggplot(recomb.GBRS.genoprobs.plot, aes(x = Gen, y = recomb)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_x_discrete(limits=c("21","22","23"))
 print(p)
-#get summary table for each generation per sigma value
-summary.tab.genoprobs <- ddply(recomb.GBRS.genoprobs.plot,.(Gen),
+#get summary table for each generation
+summary.GBRS.genoprobs <- ddply(recomb.GBRS.genoprobs.plot,.(Gen),
                 summarise,mean = mean(recomb),var = var(recomb), n= length(recomb))
 #display summary table
-DT::datatable(summary.tab.genoprobs,options = list(pageLength = 100, scrollY = "800px", scrollX = "20px"))
+DT::datatable(summary.GBRS.genoprobs,options = list(pageLength = 100, scrollY = "800px", scrollX = "20px"))
+```
+
+# Load GIGAMUGA sample of DO_Striatum (8 state founder probability)
+```{r load GIGAMUGA sample of DO_Striatum, message=FALSE, eval=FALSE}
+#GIGAMUGA_sample
+load("/projects/heh/HH/GBRS_array/data/DO_Striatum/DO369.Rdata")
+#GIGAMUGA snps
+load(url("ftp://ftp.jax.org/MUGA/GM_snps.Rdata"))
+subset.GM.snps <- GM_snps[GM_snps$marker %in% dimnames(probs.gbrs)[[3]],]
+chr <- unique(subset.GM.snps$chr)
+#split in chromosome
+GM.genoprobs.3dchr <- list()
+for (c in chr){
+  chr.marker <- subset.GM.snps[subset.GM.snps$chr == c,"marker"]
+  GM.genoprobs.3dchr[[c]] <- probs.gbrs[,,chr.marker]
+}
+attr(GM.genoprobs.3dchr, "crosstype") <- "do"
+save(GM.genoprobs.3dchr, file = "/projects/heh/HH/GBRS_array/data/DO_Striatum/GM.genoprobs.3dchr.RData")
+#use 100 cores
+cl <- makeCluster(100)
+registerDoParallel(cl)
+getDoParWorkers()
+#For each individual at each position, find the genotype with the maximum marginal probability.
+g <- maxmarg(GM.genoprobs.3dchr,cores = 100)
+#count_xo: Count numbers of crossovers in qtl2
+n_xo <- count_xo(g)
+tot_n_xo <- apply(n_xo,1,sum)
+#make results as a dataframe
+recomb.GM.genoprobs <- data.frame(Sample = dimnames(GM.genoprobs.3dchr$`1`)[[1]],
+                                    recomb = tot_n_xo)
 ```
