@@ -1,0 +1,200 @@
+---
+title: "recombinations_in_DO_Liver_MEGAMUGA"
+author: "Hao He"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+  toc: true
+vignette: >
+  %\VignetteIndexEntry{recombinations_in_DO_Liver_MEGAMUGA}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+  
+```{r knitr-opts, include=FALSE}
+knitr::opts_chunk$set(comment = "#",collapse = TRUE)
+```
+
+# Load packages
+```{r load_packages, include=FALSE}
+library(reticulate)
+library(abind)
+library(qtl2)
+library(ggplot2)
+library(DOQTL)
+library(gridExtra)
+library(VennDiagram)
+library(foreach)
+library(doParallel)
+library(parallel)
+library(plyr)
+library(DT)
+```
+
+
+# Load megamuga raw data to calculate genoprobs
+```{r Load megamuga raw data to calculate genoprobs, message=FALSE, eval=FALSE}
+#megamuga
+megamuga <- list()
+x0 <- list()
+y0 <- list()
+for(i in 1:3){
+  megamuga[[i]] <- read.table(paste0("/projects/heh/HH/GBRS_array/data/DO_Liver/array_data/megamuga",i,".txt"), header = TRUE, sep = " ")
+  rownames(megamuga[[i]]) <- megamuga[[i]]$marker
+  #x
+  x_col <- grepl("_X",colnames(megamuga[[i]]))
+  x0[[i]] <- as.data.frame(megamuga[[i]][,x_col])
+  colnames(x0[[i]]) <- gsub('_X', '', colnames(x0[[i]]))
+  #y
+  y_col <- grepl("_Y",colnames(megamuga[[i]]))
+  y0[[i]] <- as.data.frame(megamuga[[i]][,y_col])
+  colnames(y0[[i]]) <- gsub('_Y', '', colnames(y0[[i]]))
+}
+stopifnot(sum(rownames(x0[[1]]) != rownames(x0[[2]])) ==0)
+stopifnot(sum(rownames(x0[[2]]) != rownames(x0[[3]])) ==0)
+#combine x0 y0 list
+x <- as.matrix(t(do.call(cbind.data.frame,x0)))
+y <- as.matrix(t(do.call(cbind.data.frame,y0)))
+
+# GBRS_sample
+load("./output/DO_Liver/recomb.GBRS.genoprobs.RData")
+GBRS_sample <- as.character(recomb.GBRS.genoprobs$`0.110`$Sample)
+# overlap samples between GBRS and megamuga (200 samples)
+GBRS_MM_sample <- intersect(GBRS_sample,rownames(x))
+
+#subset GBRS_MM_sample
+x <- x[GBRS_MM_sample,]
+y <- y[GBRS_MM_sample,]
+
+#megamuga
+load(url("ftp://ftp.jax.org/MUGA/MM_snps.Rdata"))
+sex = sex.predict(x = x, y = y, snps = MM_snps, plot = T)
+#sample sheet
+sample_sheet <- read.table("/projects/heh/HH/GBRS_array/data/DO_Liver/sample_sheet.tsv", header = TRUE)
+#get match samples
+match_sample_sheet <- sample_sheet[sample_sheet$Sample %in% rownames(x),]
+match_sample_sheet <- match_sample_sheet[match(rownames(x),match_sample_sheet$Sample),]
+#get generation from sample sheet
+gen = paste("DO", match_sample_sheet$Gen, sep = "")
+names(gen) = as.character(match_sample_sheet$Sample)
+#sex
+sex <- as.character(match_sample_sheet$Sex)
+names(sex) = as.character(match_sample_sheet$Sample)
+
+gen = gen[names(gen) %in% names(sex)]
+gen = gen[match(names(sex), names(gen))]
+
+stopifnot(all(rownames(x) == names(sex)))
+stopifnot(all(rownames(x) == names(gen)))
+# 200 samples and 77725 markers
+data = list(x = x, y = y, sex = sex, gen = gen)
+save(data, file = "/projects/heh/HH/GBRS_array/data/DO_Liver/array_data/MEGAMUGA/MEGAMUGA.data.GBRSoverlapsample.RData")
+#genotype probs
+calc.genoprob(data = data, chr = "all", output.dir = "/projects/heh/HH/GBRS_array/data/DO_Liver/array_data/MEGAMUGA/", array = "megamuga",sampletype = "DO", method = "intensity")
+
+# GBRS_MM_sample genoprobs
+mm.genoprobs <- list()
+for (i in GBRS_MM_sample){
+  mm.genoprobs[[i]] <- get(load(paste0("/projects/heh/HH/GBRS_array/data/DO_Liver/array_data/MEGAMUGA/",i,".genotype.probs.Rdata")))
+}
+mm.genoprobs.3d <- abind(mm.genoprobs, along = 3)
+#mm.genoprobs.3d 3D, subjects*genotypes*markers
+mm.genoprobs.3d <- aperm(mm.genoprobs.3d, perm = c(3,2,1)
+#megamuga snps
+load(url("ftp://ftp.jax.org/MUGA/MM_snps.Rdata"))
+subset.MM.snps <- MM_snps[MM_snps$marker %in% dimnames(mm.genoprobs.3d)[[3]],]
+chr <- unique(subset.MM.snps$chr)
+#split in chromosome
+mm.genoprobs.3dchr <- list()
+for (c in chr){
+  chr.marker <- subset.MM.snps[subset.MM.snps$chr == c,"marker"]
+  mm.genoprobs.3dchr[[c]] <- mm.genoprobs.3d[,,chr.marker]
+}
+attr(mm.genoprobs.3dchr, "crosstype") <- "do"
+save(mm.genoprobs.3dchr, file = "/projects/heh/HH/GBRS_array/data/DO_Liver/array_data/MEGAMUGA/mm.genoprobs.array.3dchr.RData")
+
+#use 100 cores
+cl <- makeCluster(100)
+registerDoParallel(cl)
+getDoParWorkers()
+#For each individual at each position, find the genotype with the maximum marginal probability.
+g <- maxmarg(mm.genoprobs.3dchr,cores = 100)
+#count_xo: Count numbers of crossovers in qtl2
+n_xo <- count_xo(g)
+tot_n_xo <- apply(n_xo,1,sum)
+#make results as a dataframe
+recomb.MM.genoprobs <- data.frame(Sample = dimnames(mm.genoprobs.3dchr$`1`)[[1]],
+     recomb = tot_n_xo)
+#save
+save(recomb.MM.genoprobs, file = "./output/DO_Liver/recomb.MM.genoprobs.array.RData")
+```
+
+# recombination plot between GBRS and MEGAMUGA
+```{r recombination plot between GBRS and MEGAMUGA, message=FALSE, eval=TRUE,fig.height=30, fig.width=40}
+load("./output/DO_Liver/recomb.GBRS.genoprobs.RData")
+load("./output/DO_Liver/recomb.MM.genoprobs.array.RData")
+#remove outlier
+remove = which(recomb.MM.genoprobs$recomb > 1000)
+#15 outliers
+recomb.MM.genoprobs[remove,]
+#15 outliers
+MM.outlier <- as.character(recomb.MM.genoprobs[remove,]$Sample)
+recomb.MM.genoprobs <- recomb.MM.genoprobs[-remove,]
+#sample sheet
+sample_sheet <- read.table("/projects/heh/HH/GBRS_array/data/DO_Liver/sample_sheet.tsv", header = TRUE)
+#add gen
+#merge with sample sheet
+recomb.MM.plot <- merge(recomb.MM.genoprobs, sample_sheet, by = "Sample", all.x = TRUE)
+recomb.MM.plot$Gen <- as.factor(recomb.MM.plot$Gen)
+#get summary table for each generation for 185 samples
+summary.MM.recomb <- ddply(recomb.MM.plot,.(Gen),
+                           summarise,mean = mean(recomb),var = var(recomb), n= length(recomb))
+#boxplot
+p1 <-ggplot(recomb.MM.plot, aes(x = Gen, y = recomb)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_jitter(position = position_jitter(0.25), aes(colour = Gen)) +
+  theme(legend.position="none") +
+  geom_smooth(method = "lm", se=FALSE, color="black", aes(group=1), linetype="dotted") +
+  labs(x = "DO Outbreeding Generations") +
+  labs(y = paste0("Number of Recombinations (MUGA)")) +
+  scale_x_discrete(limits=c("4","5","6","7","8","9","10","11")) +
+  ggtitle("Recombinations using genoprobs from MEGAMUGA samples (185)") +
+  theme(plot.title = element_text(hjust = 0.5))
+print(p1)
+
+#boxplot for GBRS
+sigma = c("0.110", "0.115", "0.120", "0.125", "0.130")
+p <- list()
+summary.GBRS.recomb <- list()
+for (sg in sigma){
+  #merge with sample sheet
+  recomb.GBRS.plot <- merge(recomb.GBRS.genoprobs[[sg]], sample_sheet, by = "Sample", all.x = TRUE)
+  subset.recomb.GBRS.plot <- recomb.GBRS.plot[recomb.GBRS.plot$Sample %in% recomb.MM.plot$Sample, ]
+  subset.recomb.GBRS.plot$Gen <- as.factor(subset.recomb.GBRS.plot$Gen)
+  
+  #get summary table for each generation per sigma value
+  summary.GBRS.recomb[[sg]] <- ddply(subset.recomb.GBRS.plot,.(Gen),
+                           summarise,mean = mean(recomb),var = var(recomb), n= length(recomb))
+  summary.GBRS.recomb[[sg]]$sigma <- sg
+
+  #boxplot
+  p[[sg]]<- ggplot(subset.recomb.GBRS.plot, aes(x = Gen, y = recomb)) +
+    geom_boxplot(outlier.shape = NA) +
+    geom_jitter(position = position_jitter(0.25), aes(colour = Gen)) +
+    theme(legend.position="none") +
+    geom_smooth(method = "lm", se=FALSE, color="black", aes(group=1), linetype="dotted") +
+    labs(x = "DO Outbreeding Generations") +
+    labs(y = paste0("Number of Recombinations (GBRS,sigma =", sg, ")")) +
+    scale_x_discrete(limits=c("4","5","6","7","8","9","10","11")) +
+    ylim(150, 670)
+}
+#plot between GBRS and MEGAMUGA
+grid.arrange(p1,p[[1]],p[[2]],p[[3]],p[[4]],p[[5]], ncol=6,top = textGrob("Recombination events between GBRS and MUGA",gp=gpar(fontsize=20,font=3)))
+#get summary table for GBRS
+summary.GBRS.recomb <- do.call(rbind.data.frame,summary.GBRS.recomb)
+rownames(summary.GBRS.recomb) <- NULL
+#display summary table summary.GBRS.recomb
+DT::datatable(summary.GBRS.recomb,options = list(pageLength = 100, scrollY = "800px", scrollX = "20px"))
+#display summary table summary.MM.recomb
+DT::datatable(summary.MM.recomb,options = list(pageLength = 100, scrollY = "100px", scrollX = "20px"))
+```

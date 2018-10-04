@@ -17,7 +17,8 @@ To evaluate the performance of GBRS by comparing its genoprob with arraybased ge
 3. LODs on local eQTLs - accumulative and/or scatterplot
 
 ## Recombinations
-* [Recombinations in DO Liver](recombinations_in_DO_Liver.html)
+* [Recombinations in DO Liver MUGA](recombinations_in_DO_Liver_MUGA.html)
+* [Recombinations in DO Liver MEGAMUGA](recombinations_in_DO_Liver_MEGAMUGA.html)
 * [Recombinations in DO Striatum](recombinations_in_DO_Striatum.html)
 
 ## Pearson correlation between genoprobs
