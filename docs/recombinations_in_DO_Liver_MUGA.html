@@ -11,7 +11,7 @@
 
 <meta name="author" content="Hao He" />
 
-<meta name="date" content="2018-10-04" />
+<meta name="date" content="2018-10-11" />
 
 <title>recombinations_in_DO_Liver_MUGA</title>
 
@@ -321,12 +321,12 @@ div.section {
 
 <h1 class="title toc-ignore">recombinations_in_DO_Liver_MUGA</h1>
 <h4 class="author"><em>Hao He</em></h4>
-<h4 class="date"><em>2018-10-04</em></h4>
+<h4 class="date"><em>2018-10-11</em></h4>
 
 </div>
 
 
-<p><strong>Last updated:</strong> 2018-10-04</p>
+<p><strong>Last updated:</strong> 2018-10-11</p>
 <strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
 <ul>
 <li>
@@ -350,15 +350,23 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/xhyuo/Workflowr_GBRS_array/tree/04f52f61139197e8cb7513fef448884034c371f6" target="_blank">04f52f6</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/xhyuo/Workflowr_GBRS_array/tree/143caff4630cf868f81980e7fb0220a8326532f4" target="_blank">143caff</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
+    Ignored:    .Rhistory
     Ignored:    .Rproj.user/
 
 Untracked files:
-    Untracked:  docs/figure/recombinations_in_DO_Liver_MEGAMUGA.Rmd/
+    Untracked:  analysis/cor_DO_Liver_GBRS_MUGA.Rmd
+    Untracked:  analysis/data_preprocessing.Rmd
+    Untracked:  analysis/recombinations_in_MUGA_DO_Liver.Rmd
+    Untracked:  data/marker_grid_0.02cM_plus.txt
     Untracked:  new_ini/
+    Untracked:  output/DO_Liver/GBRS200.recomb.RData
+    Untracked:  output/DO_Liver/GBRS282.recomb.RData
+    Untracked:  output/DO_Liver/megamuga200.recomb.RData
+    Untracked:  output/DO_Liver/muga282.recomb.RData
     Untracked:  output/DO_Liver/recomb.MM.genoprobs.HMM.RData
     Untracked:  output/DO_Liver/recomb.MM.genoprobs.RData
     Untracked:  output/DO_Liver/recomb.MM.genoprobs.array.RData
@@ -371,6 +379,67 @@ Unstaged changes:
 Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes. </details>
 </li>
 </ul>
+<details> <summary> <small><strong>Expand here to see past versions:</strong></small> </summary>
+<ul>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+File
+</th>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+<th style="text-align:left;">
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/xhyuo/Workflowr_GBRS_array/blob/143caff4630cf868f81980e7fb0220a8326532f4/analysis/recombinations_in_DO_Liver_MUGA.Rmd" target="_blank">143caff</a>
+</td>
+<td style="text-align:left;">
+xhyuo
+</td>
+<td style="text-align:left;">
+2018-10-11
+</td>
+<td style="text-align:left;">
+Publish
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/xhyuo/Workflowr_GBRS_array/8e9f76ce010a222b0fb15c61d5a29a9ea644b63e/docs/recombinations_in_DO_Liver_MUGA.html" target="_blank">8e9f76c</a>
+</td>
+<td style="text-align:left;">
+xhyuo
+</td>
+<td style="text-align:left;">
+2018-10-04
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
+</tbody>
+</table>
+</ul>
+<p></details></p>
 <hr />
 <div id="load-packages" class="section level1">
 <h1>Load packages</h1>
@@ -381,7 +450,7 @@ Note that any generated files, e.g. HTML, png, CSS, etc., are not included in t
 sigma = c(&quot;0.110&quot;, &quot;0.115&quot;, &quot;0.120&quot;, &quot;0.125&quot;, &quot;0.130&quot;)
 # chr
 chr.names &lt;- c(&quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;,&quot;5&quot;,&quot;6&quot;,&quot;7&quot;,&quot;8&quot;,&quot;9&quot;,&quot;10&quot;,&quot;11&quot;,&quot;12&quot;,&quot;13&quot;,&quot;14&quot;,&quot;15&quot;,&quot;16&quot;,&quot;17&quot;,&quot;18&quot;,&quot;19&quot;,&quot;X&quot;)
-
+geno.probs.liver &lt;- list()
 for (sg in sigma){
   sample.name &lt;- list.files(path = paste0(&quot;/projects/heh/HH/GBRS_array/data/DO_Liver/results/bowtie-1.1.2_gbrs-0.1.6_R84-REL1505/sigma&quot;,sg,&quot;/&quot;))
   print(sg)
@@ -402,7 +471,7 @@ for (sg in sigma){
   geno.probs.liver[[sg]] &lt;- d3.geno.prob
 }
 # Save geno.probs.liver to a file
-saveRDS(geno.probs.liver, file = &quot;/projects/heh/HH/GBRS_array/data/DO_Liver./output/DO_Liver/geno.probs.liver.rds&quot;)</code></pre>
+saveRDS(geno.probs.liver, file = &quot;/projects/heh/HH/GBRS_array/data/DO_Liver/geno.probs.liver.rds&quot;)</code></pre>
 </div>
 <div id="load-3d-genoprobs-array-geno.probs.liver-from-do_liver-data-to-calculate-recombination" class="section level1">
 <h1>Load 3D genoprobs array (geno.probs.liver) from DO_liver data to calculate recombination</h1>
@@ -464,14 +533,164 @@ for (sg in sigma){
 }
 # [1] &quot;0.110&quot;</code></pre>
 <p><img src="figure/recombinations_in_DO_Liver_MUGA.Rmd/Load%20recombination%20results%20on%20recomb.GBRS.genoprobs%20of%20DO_liver-1.png" width="960" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of Load recombination results on recomb.GBRS.genoprobs of DO_liver-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/xhyuo/Workflowr_GBRS_array/blob/8e9f76ce010a222b0fb15c61d5a29a9ea644b63e/docs/figure/recombinations_in_DO_Liver_MUGA.Rmd/Load recombination results on recomb.GBRS.genoprobs of DO_liver-1.png" target="_blank">8e9f76c</a>
+</td>
+<td style="text-align:left;">
+xhyuo
+</td>
+<td style="text-align:left;">
+2018-10-04
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre><code># [1] &quot;0.115&quot;</code></pre>
 <p><img src="figure/recombinations_in_DO_Liver_MUGA.Rmd/Load%20recombination%20results%20on%20recomb.GBRS.genoprobs%20of%20DO_liver-2.png" width="960" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of Load recombination results on recomb.GBRS.genoprobs of DO_liver-2.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/xhyuo/Workflowr_GBRS_array/blob/8e9f76ce010a222b0fb15c61d5a29a9ea644b63e/docs/figure/recombinations_in_DO_Liver_MUGA.Rmd/Load recombination results on recomb.GBRS.genoprobs of DO_liver-2.png" target="_blank">8e9f76c</a>
+</td>
+<td style="text-align:left;">
+xhyuo
+</td>
+<td style="text-align:left;">
+2018-10-04
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre><code># [1] &quot;0.120&quot;</code></pre>
 <p><img src="figure/recombinations_in_DO_Liver_MUGA.Rmd/Load%20recombination%20results%20on%20recomb.GBRS.genoprobs%20of%20DO_liver-3.png" width="960" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of Load recombination results on recomb.GBRS.genoprobs of DO_liver-3.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/xhyuo/Workflowr_GBRS_array/blob/8e9f76ce010a222b0fb15c61d5a29a9ea644b63e/docs/figure/recombinations_in_DO_Liver_MUGA.Rmd/Load recombination results on recomb.GBRS.genoprobs of DO_liver-3.png" target="_blank">8e9f76c</a>
+</td>
+<td style="text-align:left;">
+xhyuo
+</td>
+<td style="text-align:left;">
+2018-10-04
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre><code># [1] &quot;0.125&quot;</code></pre>
 <p><img src="figure/recombinations_in_DO_Liver_MUGA.Rmd/Load%20recombination%20results%20on%20recomb.GBRS.genoprobs%20of%20DO_liver-4.png" width="960" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of Load recombination results on recomb.GBRS.genoprobs of DO_liver-4.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/xhyuo/Workflowr_GBRS_array/blob/8e9f76ce010a222b0fb15c61d5a29a9ea644b63e/docs/figure/recombinations_in_DO_Liver_MUGA.Rmd/Load recombination results on recomb.GBRS.genoprobs of DO_liver-4.png" target="_blank">8e9f76c</a>
+</td>
+<td style="text-align:left;">
+xhyuo
+</td>
+<td style="text-align:left;">
+2018-10-04
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre><code># [1] &quot;0.130&quot;</code></pre>
 <p><img src="figure/recombinations_in_DO_Liver_MUGA.Rmd/Load%20recombination%20results%20on%20recomb.GBRS.genoprobs%20of%20DO_liver-5.png" width="960" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of Load recombination results on recomb.GBRS.genoprobs of DO_liver-5.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/xhyuo/Workflowr_GBRS_array/blob/8e9f76ce010a222b0fb15c61d5a29a9ea644b63e/docs/figure/recombinations_in_DO_Liver_MUGA.Rmd/Load recombination results on recomb.GBRS.genoprobs of DO_liver-5.png" target="_blank">8e9f76c</a>
+</td>
+<td style="text-align:left;">
+xhyuo
+</td>
+<td style="text-align:left;">
+2018-10-04
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre class="r"><code>summary.tab.genoprobs &lt;- do.call(rbind.data.frame,summary.tab)
 rownames(summary.tab.genoprobs) &lt;- NULL
 #display summary table
@@ -611,6 +830,36 @@ p &lt;-ggplot(recomb.muga.plot, aes(x = Gen, y = recomb)) +
   ylim(150, 700)
 print(p)</code></pre>
 <p><img src="figure/recombinations_in_DO_Liver_MUGA.Rmd/Load%20recombinations%20on%20muga%20genotype%20probs%20data-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of Load recombinations on muga genotype probs data-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/xhyuo/Workflowr_GBRS_array/blob/8e9f76ce010a222b0fb15c61d5a29a9ea644b63e/docs/figure/recombinations_in_DO_Liver_MUGA.Rmd/Load recombinations on muga genotype probs data-1.png" target="_blank">8e9f76c</a>
+</td>
+<td style="text-align:left;">
+xhyuo
+</td>
+<td style="text-align:left;">
+2018-10-04
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 </div>
 <div id="venn-diagram-among-gbrs-and-muga" class="section level1">
 <h1>Venn diagram among GBRS and MUGA</h1>
@@ -631,6 +880,36 @@ grid.newpage()
 venn.plot &lt;- draw.pairwise.venn(area1 = area1, area2 = area2, cross.area = n12, c(&quot;GBRS&quot;, &quot;MUGA&quot;) , lty = &quot;blank&quot;,
                  fill = c(&quot;skyblue&quot;, &quot;pink1&quot;), cex = 4, cat.cex = 5)</code></pre>
 <p><img src="figure/recombinations_in_DO_Liver_MUGA.Rmd/Venn%20diagram%20among%20GBRS%20and%20MUGA-1.png" width="3840" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of Venn diagram among GBRS and MUGA-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/xhyuo/Workflowr_GBRS_array/blob/8e9f76ce010a222b0fb15c61d5a29a9ea644b63e/docs/figure/recombinations_in_DO_Liver_MUGA.Rmd/Venn diagram among GBRS and MUGA-1.png" target="_blank">8e9f76c</a>
+</td>
+<td style="text-align:left;">
+xhyuo
+</td>
+<td style="text-align:left;">
+2018-10-04
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 </div>
 <div id="recombination-plot-between-gbrs-and-muga" class="section level1">
 <h1>recombination plot between GBRS and muga</h1>
@@ -680,7 +959,38 @@ for (sg in sigma){
 #plot between GBRS and MUGA
 grid.arrange(p1,p[[1]],p[[2]],p[[3]],p[[4]],p[[5]], ncol=6,top = textGrob(&quot;Recombination events between GBRS and MUGA&quot;,gp=gpar(fontsize=20,font=3)))</code></pre>
 <p><img src="figure/recombinations_in_DO_Liver_MUGA.Rmd/recombination%20plot%20between%20GBRS%20and%20muga-1.png" width="3840" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>#get summary table for GBRS
+<details> <summary><em>Expand here to see past versions of recombination plot between GBRS and muga-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/xhyuo/Workflowr_GBRS_array/blob/8e9f76ce010a222b0fb15c61d5a29a9ea644b63e/docs/figure/recombinations_in_DO_Liver_MUGA.Rmd/recombination plot between GBRS and muga-1.png" target="_blank">8e9f76c</a>
+</td>
+<td style="text-align:left;">
+xhyuo
+</td>
+<td style="text-align:left;">
+2018-10-04
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+<pre class="r"><code>
+#get summary table for GBRS
 summary.GBRS.recomb &lt;- do.call(rbind.data.frame,summary.GBRS.recomb)
 rownames(summary.GBRS.recomb) &lt;- NULL
 #display summary table summary.GBRS.recomb
