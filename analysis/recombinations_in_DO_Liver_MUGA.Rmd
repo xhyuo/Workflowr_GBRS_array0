@@ -37,7 +37,7 @@ library(DT)
 sigma = c("0.110", "0.115", "0.120", "0.125", "0.130")
 # chr
 chr.names <- c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","X")
-
+geno.probs.liver <- list()
 for (sg in sigma){
   sample.name <- list.files(path = paste0("/projects/heh/HH/GBRS_array/data/DO_Liver/results/bowtie-1.1.2_gbrs-0.1.6_R84-REL1505/sigma",sg,"/"))
   print(sg)
@@ -58,7 +58,7 @@ for (sg in sigma){
   geno.probs.liver[[sg]] <- d3.geno.prob
 }
 # Save geno.probs.liver to a file
-saveRDS(geno.probs.liver, file = "/projects/heh/HH/GBRS_array/data/DO_Liver./output/DO_Liver/geno.probs.liver.rds")
+saveRDS(geno.probs.liver, file = "/projects/heh/HH/GBRS_array/data/DO_Liver/geno.probs.liver.rds")
 ```
 
 # Load 3D genoprobs array (geno.probs.liver) from DO_liver data to calculate recombination
@@ -326,6 +326,7 @@ for (sg in sigma){
 }
 #plot between GBRS and MUGA
 grid.arrange(p1,p[[1]],p[[2]],p[[3]],p[[4]],p[[5]], ncol=6,top = textGrob("Recombination events between GBRS and MUGA",gp=gpar(fontsize=20,font=3)))
+
 #get summary table for GBRS
 summary.GBRS.recomb <- do.call(rbind.data.frame,summary.GBRS.recomb)
 rownames(summary.GBRS.recomb) <- NULL

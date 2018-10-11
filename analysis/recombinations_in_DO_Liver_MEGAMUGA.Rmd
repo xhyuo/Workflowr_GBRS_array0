@@ -156,10 +156,8 @@ p1 <-ggplot(recomb.MM.plot, aes(x = Gen, y = recomb)) +
   theme(legend.position="none") +
   geom_smooth(method = "lm", se=FALSE, color="black", aes(group=1), linetype="dotted") +
   labs(x = "DO Outbreeding Generations") +
-  labs(y = paste0("Number of Recombinations (MUGA)")) +
-  scale_x_discrete(limits=c("4","5","6","7","8","9","10","11")) +
-  ggtitle("Recombinations using genoprobs from MEGAMUGA samples (185)") +
-  theme(plot.title = element_text(hjust = 0.5))
+  labs(y = paste0("Number of Recombinations (MegaMUGA)")) +
+  scale_x_discrete(limits=c("4","5","6","7","8","9","10","11"))
 print(p1)
 
 #boxplot for GBRS
@@ -189,7 +187,10 @@ for (sg in sigma){
     ylim(150, 670)
 }
 #plot between GBRS and MEGAMUGA
-grid.arrange(p1,p[[1]],p[[2]],p[[3]],p[[4]],p[[5]], ncol=6,top = textGrob("Recombination events between GBRS and MUGA",gp=gpar(fontsize=20,font=3)))
+grid.arrange(p1,p[[1]],p[[2]],p[[3]],p[[4]],p[[5]], ncol=6,top = textGrob("Recombination events between GBRS and MegaMUGA",gp=gpar(fontsize=20,font=3)))
+
+grid.arrange(p1,p[[3]], ncol=2,top = textGrob("Recombination events between GBRS and MegaMUGA",gp=gpar(fontsize=50,font=8)))
+
 #get summary table for GBRS
 summary.GBRS.recomb <- do.call(rbind.data.frame,summary.GBRS.recomb)
 rownames(summary.GBRS.recomb) <- NULL

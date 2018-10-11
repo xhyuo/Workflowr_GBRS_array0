@@ -22,7 +22,7 @@ To evaluate the performance of GBRS by comparing its genoprob with arraybased ge
 * [Recombinations in DO Striatum](recombinations_in_DO_Striatum.html)
 
 ## Pearson correlation between genoprobs
-* [Pearson correlation between genoprobs](cor.html)
+* [Pearson correlation between MUGA and GBRS](cor_DO_Liver_GBRS_MUGA.html)
 
 ## LODs on local eQTLs
 * [LODs on local eQTLs](LOD_eqtl.html)
